@@ -1,39 +1,40 @@
-import {getActionFromState} from '@react-navigation/native';
-import React from 'react';
+import React, {useContext} from 'react';
 import {View, FlatList, Alert} from 'react-native';
 import {ListItem, Button, Icon} from 'react-native-elements';
+import UsersContext from '../context/UserContext';
 
-import users from '../data/users';
+export default (props) => {
+  const {state, dispatch} = useContext(UsersContext);
 
-
-
-
-
-const UserLista = () => {
-
-
-  function confirmUserDelete(user){
-    Alert.alert('Excluir Usuário', 'Deseja exclui o usuário?',
-    [
-      { text:"Sim", onPress() {console.warn('Sim deleta' +user.id)} 
-    },
-      {text:"Não", onPress() {console.warn('Não deleta'+user.id)}},
-   ])
+  function confirmUserDeletion(user) {
+    Alert.alert('Excluir Usuário', 'Deseja excluir o usuário?', [
+      {
+        text: 'Sim',
+        onPress() {
+          dispatch({
+            type: 'deleteUser',
+            payload: user,
+          });
+        },
+      },
+      {
+        text: 'Não',
+      },
+    ]);
   }
-
 
   function getActions(user) {
     return (
       <>
-        <Button 
-        onPress={()=>props.navigation.navigate('UserForm')}
-        type='clear'
-        icon={<Icon name="edit" size={25} color="orange" />}
+        <Button
+          onPress={() => props.navigation.navigate('UserForm', user)}
+          type="clear"
+          icon={<Icon name="edit" size={25} color="orange" />}
         />
-        <Button 
-        onPress={()=>confirmUserDelete(user)}
-        type='clear'
-        icon={<Icon name="delete" size={25} color="red" />}
+        <Button
+          onPress={() => confirmUserDeletion(user)}
+          type="clear"
+          icon={<Icon name="delete" size={25} color="red" />}
         />
       </>
     );
@@ -48,7 +49,7 @@ const UserLista = () => {
         subtitle={user.email}
         bottomDivider
         rightElement={getActions(user)}
-        onPress={() => props.navigation.navigate('UserForm')}
+        onPress={() => props.navigation.navigate('UserForm', user)}
       />
     );
   }
@@ -57,11 +58,9 @@ const UserLista = () => {
     <View>
       <FlatList
         keyExtractor={(user) => user.id.toString()}
-        data={users}
+        data={state.users}
         renderItem={getUserItem}
       />
     </View>
   );
 };
-
-export default UserLista;
